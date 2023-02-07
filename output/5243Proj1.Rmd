@@ -1,0 +1,212 @@
+---
+title: "History of Philosophy"
+author: "Xiangyi Yan"
+date: "2/6/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr) # Data wrangling & manipulation
+library(tidytext) # For unnest_tokens
+library(stringr) # For managing text
+library(ggplot2) # For data visualizations & graphs
+```
+
+![image](Plato.jpg)
+## Introduction
+
+Philosophy has been a central discipline in human history, serving as a means of exploring the fundamental questions of existence, morality, and meaning. From ancient Greek philosophers such as Socrates, Plato, and Aristotle, to modern thinkers such as Immanuel Kant, Friedrich Nietzsche, and Martin Heidegger, the discipline has played a crucial role in shaping our understanding of the human condition. Through careful examination and reflection, philosophy has helped us to gain insights into the nature of reality, our place in the world, and the ways in which we interact with one another. Therefore, it’s significant to explore their philosophical focuses to shape our world more clearly and how the central mind evolves through time.
+
+
+## Data Description	
+
+```{r}
+dat <- read.csv("philosophy_data.csv", head = T)
+dim(dat)
+names(dat) 
+head(dat)
+summary(dat)
+attach(dat)
+```
+
+The dataset (Alizadeh, 2021) contains over 360k sentences from over 50 texts spanning 13 significant schools of philosophy. Of the 11 variables, 8 are categorical, and 3 are continuous. The dataset is complete and clean and does not have any rows with missing data.
+
+From the summary table above, we can see that the data contains philosophical books from 350 BC to 1985, where most books were published in modern times and edited recently. When writing a book, philosophers tend to control a sentence length of around 151 to make the book more readable. Take a glance at the dataset from the histograms of the quantitative variables below:
+
+```{r, fig.width=10, fig.height=4}
+par(mfrow=c(1,3))
+date <- dat$original_publication_date
+hist(date, freq=F, right=F, col="lightblue",
+     xlab="original publication date",
+     main="Histogram of Publication Date")
+
+hist(corpus_edition_date, freq=F, right=F, col="lightgreen",
+     xlab="corpus edition date",
+     main="Histogram of Corpus Edition Date")
+
+hist(sentence_length, freq=F, right=F, col="lightpink", 
+     xlab="Sentence Length",
+     main="Histogram of Sentence Length")
+```
+
+
+## Finding Relationships
+
+After perceiving some information about the dataset, we dug deeper into the variables to see if there’s any relationship between them. The $original\ date\ of\ publications$ (original_publication_date), the $length\ of\ sentences$ (sentence_length), and various $types\ of\ schools$ (school) were what we focused on. 
+
+First, I was curious about whether or not the time period affects the sentence length. However, the plot does not show a strong correlation between them:
+
+```{r}
+plot(date, sentence_length, col = "skyblue",
+     main="Time Period vs. Sentence Length", xlab="Year",
+     ylab="Sentence Length", pch=19)
+cor(date, sentence_length)
+
+m1 <- lm(sentence_length ~ date)
+abline(m1, lty=2, lwd=2, col="blue")
+points(mean(date), mean(sentence_length),
+       pch=19, col="green")
+```
+
+A correlation of 0.06739653 is too weak to conclude a relationship. Also, the SLR fitted above has a large fitness error with the dataset.
+
+Then, I wondered what other variables might affect the sentence lengths. Take a look at the type of schools we have in the dataset, which are:
+
+```{r}
+levels(factor(school))
+ggplot(data=dat, mapping = aes(x = school, y = sentence_length, col = school)) + 
+  geom_boxplot(outlier.colour="grey", outlier.shape=8, outlier.size=2) +
+  theme_bw()
+```
+
+Before the boxplots, I gussed that sentence lengths can be affected by the school in which the author joined. For example, philosophers in the ancient period tend to write shorter sentences. However, the mean of sentence lengths of each schools are pretty much the same, so schools of which a philosopher joins does not affect sentence lengths.
+
+At last, I moved my attention to the time period of each school's popularity.
+
+```{r}
+ggplot(data=dat, mapping = aes(x = school, y = date, col = school)) + 
+  theme(axis.text = element_text(size = 10)) +
+  geom_boxplot() +
+  theme_bw()
+```
+
+Above are boxplots that present the relationship between schools and publication date, giving us a brief introduction to see each school’s prevalence across centuries and years. As you can see above,  Aristotle and Plato are two major schools before the common era, whereas other schools came out after 1500, especially after 1750.
+
+
+## Main Focus of Philosophers and Their Frequent Words
+
+The history of philosophy is rich and spans a significant period of time, encompassing a diverse array of perspectives, beliefs, and theories. Every philosopher has their own unique point of view and area of specialization, which they used to explore and understand the world around them. This has resulted in a rich tapestry of philosophical thought, covering various subjects such as ethics, politics, metaphysics, epistemology, and much more. To gain a deeper understanding of the role that philosophy has played in shaping society, it is necessary to carefully study the most representative philosophers from different time periods. By doing this, we can gain insight into the evolution of philosophical thought and the impact that it has had on the world.
+
+First, we need to know which philosophers are included in the dataset.
+
+```{r}
+levels(factor(author))
+date[author=="Plato"][1] 
+date[author=="Aristotle"][1] 
+date[author=="Kant"][1] 
+date[author=="Nietzsche"][1]
+date[author=="Heidegger"][1]
+```
+
+Plato, Aristotle, Kant, Nietzsche, and Heidegger are five of the most influential philosophers in Western philosophy, the front two were from ancient times and the latter three were in modern times, each making important contributions to the field and expanding our understanding of the world. Thus it’s important for us to discover what their ideas emphasize. 
+
+Plato was a student of Socrates and is best known for his theory of Forms, in which he believed that reality was comprised of eternal, unchanging Forms or Ideas, of which the physical world is just a reflection. He also founded the Academy in Athens, which was one of the first institutions of higher learning in the Western world.
+
+```{r}
+p <- subset(dat, author == "Plato")
+strings <- p$tokenized_txt
+
+# Split each string into words
+words_list <- unlist(lapply(strings, function(string) {
+  strsplit(string, " ")[[1]]
+}))
+# Create a table of word frequencies
+word_table <- table(words_list)
+# Sort the word frequency table in decreasing order
+table1 <- sort(word_table, decreasing=TRUE)
+dim(table1)
+table1[50:200]
+```
+
+Except for common words that we usually use in normal circumstances, I found the most frequent word of “think” 1876 times, “being” 1448 times, “soul” 1051 times, “own” 985 times, “knowledge” 809 times, “gods” 710 times, which play an important role in verifying his idea.
+
+Aristotle was a student of Plato and a tutor to Alexander the Great. He rejected Plato's theory of Forms and instead believed that the physical world was the ultimate reality. He made important contributions to a wide range of fields, including ethics, politics, metaphysics, and biology.
+
+```{r}
+a <- subset(dat, author == "Aristotle")
+strings <- a$tokenized_txt
+
+
+words_list <- unlist(lapply(strings, function(string) {
+  strsplit(string, " ")[[1]]
+}))
+word_table <- table(words_list)
+table2 <- sort(word_table, decreasing=TRUE)
+dim(table2)
+table2[40:200]
+```
+
+Again, I picked the usable nouns from the table above and saw “being” 3820 times, “animals” 2268 times,  “time” 2084 times, “body” 1799 times, “nature” 1799 times, “motion” 1719 times, “water” 1611 times, where all come from reality.
+
+Kant was an 18th-century German philosopher who sought to reconcile the conflicting ideas of empiricism and rationalism. He believed that the mind imposes structure on our experiences and that our knowledge of the world is limited by the nature of our perceptual and cognitive faculties.
+
+```{r}
+k <- subset(dat, author == "Kant")
+strings <- k$tokenized_txt
+
+
+words_list <- unlist(lapply(strings, function(string) {
+  strsplit(string, " ")[[1]]
+}))
+word_table <- table(words_list)
+table3 <- sort(word_table, decreasing=TRUE)
+dim(table3)
+table3[1:150]
+```
+
+Similarly, I found "reason" 2261 times, "concept" 1880 times (and "concepts" 1027 times), "nature" 1657 times, "object" 1485 times, "being" 1215 times, "understanding" 1098 times, where all of them are the basic of cognition.
+
+Nietzsche was a 19th-century German philosopher who rejected the traditional values and beliefs of his time and instead espoused a philosophy of life that celebrated individuality, creativity, and the will to power. He is best known for his ideas about the death of God and the rejection of traditional morality.
+
+```{r}
+n <- subset(dat, author == "Nietzsche")
+strings <- n$tokenized_txt
+
+
+words_list <- unlist(lapply(strings, function(string) {
+  strsplit(string, " ")[[1]]
+}))
+word_table <- table(words_list)
+table4 <- sort(word_table, decreasing=TRUE)
+dim(table3)
+table4[1:150]
+```
+
+Nietzsche, in our data, repeatedly used "he" 1788 times, "life" 534 times, "god" 473 times, "zarathustra" 455 times, "world" 418 times, which point to God and nonnormality of the society.
+
+Heidegger was a 20th-century German philosopher who is best known for his work "Being and Time". He sought to understand the nature of being and focused on the idea of "Being-towards-Death", which he believed was a fundamental aspect of human existence.
+
+```{r}
+h <- subset(dat, author == "Heidegger")
+strings <- h$tokenized_txt
+
+words_list <- unlist(lapply(strings, function(string) {
+  strsplit(string, " ")[[1]]
+}))
+word_table <- table(words_list)
+table5 <- sort(word_table, decreasing=TRUE)
+dim(table5)
+table5[1:150]
+```
+
+Heidegger frequently used Being 4393 times (beings 1029 times), dasein 1504 times,world 1201 times,time 855 times,truth 578 times,where dasein is the vernacular term for "existence" or "determined being". 
+
+These are just a few of the differences between the ideas of these five philosophers, but each one has made important contributions to the field of philosophy and has had a lasting impact on our understanding of the world.
+
+## Conclusions
+
+The relationship between sentence length and publication date, as well as sentence length and school type, is not clear cut. Most of the major schools of philosophy became popular after 1750, whereas before this time, it was the world of Plato and Aristotle. The development of technology has had a major impact on the quality of life, and as a result, there has been an increase in the number of philosophers and the growth of various ideas. This has provided a solid foundation for further exploration and discovery in the field of philosophy.
+
+It is worth noting that before 1750, philosophers were often limited by the technology and resources available to them. However, with the advent of new technologies and increased resources, more philosophers were able to emerge and their ideas were able to flourish. This has led to a rich and diverse landscape of philosophical thought, with a wide range of schools, theories, and perspectives.
+
+The fact that there is no clear relationship between sentence length and publication date, or sentence length and school type, highlights the complex and multi-faceted nature of the philosophical inquiry. Philosophy is a constantly evolving discipline, with new ideas and perspectives emerging all the time. It is this dynamic and constantly evolving nature that makes philosophy such an exciting and rewarding field of study.

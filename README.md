@@ -2,17 +2,17 @@
 ## Spring 2023
 ## Project 1: A "data story" on the history of philosophy
 
-<img src="figs/100126-the-glass.jpeg" width="500">
+![image](Plato.jpg)
 
 ### [Project Description](doc/)
 This is the first and only *individual* (as opposed to *team*) project this semester. 
 
 Term: Spring 2023
 
-+ Projec title: Lorem ipsum dolor sit amet
-+ This project is conducted by [your name]
++ Projec title: History of Philosophy
++ This project is conducted by Xiangyi Yan
 
-+ Project summary: [a short summary] Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ Project summary: Philosophy has been an integral part of human culture for thousands of years, evolving and adapting to the changing needs and interests of different societies and historical periods. The earliest philosophical traditions can be traced back to ancient Greece, where thinkers such as Socrates, Plato, and Aristotle laid the foundations for Western philosophy. These early philosophers sought to understand the nature of reality, the human soul, and the good life, and their ideas continue to be studied and debated to this day. Thus it’s important to dig deeper into their focuses, such as the focus of each philosopher and the differences between them. For this project, we will start by understanding the dataset and finding out the relationships between the given variables and then look through typical philosophers’ focus by analyzing their frequently-used words.
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
